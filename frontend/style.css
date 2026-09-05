@@ -1,1 +1,216 @@
+:root {
+  --bg-color: #020813;
+  --panel-bg: rgba(4, 20, 38, 0.65);
+  --cyan-glow: #00f0ff;
+  --blue-glow: #0066ff;
+  --text-main: #d0f4ff;
+  --off-color: #ff3366;
+  --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px;
+  overflow-x: hidden;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+
+header h1 {
+  font-size: 2.2rem;
+  color: var(--cyan-glow);
+  text-shadow: 0 0 10px var(--cyan-glow), 0 0 20px var(--blue-glow);
+}
+
+header p {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  letter-spacing: 4px;
+}
+
+main {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Arc Reactor Animation Area */
+.core {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: 10px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.ring.r1 {
+  width: 100%;
+  height: 100%;
+  border: 3px dashed var(--cyan-glow);
+  box-shadow: 0 0 15px var(--cyan-glow), inset 0 0 15px var(--cyan-glow);
+  animation: spin 8s linear infinite;
+}
+
+.ring.r2 {
+  width: 72%;
+  height: 72%;
+  border: 2px solid var(--blue-glow);
+  border-top-color: var(--cyan-glow);
+  border-bottom-color: var(--cyan-glow);
+  box-shadow: 0 0 10px var(--blue-glow);
+  animation: spin-reverse 4s linear infinite;
+}
+
+.center {
+  width: 38%;
+  height: 38%;
+  background: radial-gradient(circle, #ffffff 10%, var(--cyan-glow) 70%);
+  border-radius: 50%;
+  box-shadow: 0 0 20px var(--cyan-glow), 0 0 40px var(--cyan-glow);
+  animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+.core-text {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: var(--cyan-glow);
+  text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+/* Status & Chat Panels */
+.status, .chat {
+  background: var(--panel-bg);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+}
+
+.status {
+  padding: 12px 16px;
+}
+
+.status h2 {
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+  color: var(--cyan-glow);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  padding-bottom: 4px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.on {
+  color: var(--cyan-glow);
+  text-shadow: 0 0 6px var(--cyan-glow);
+}
+
+.off {
+  color: var(--off-color);
+  text-shadow: 0 0 6px var(--off-color);
+}
+
+/* Scrollable Chat Area */
+.chat {
+  height: 180px;
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+/* User Input Form */
+.input-area {
+  display: flex;
+  gap: 8px;
+}
+
+input#msg {
+  flex: 1;
+  background: rgba(4, 20, 38, 0.8);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 4px;
+  padding: 10px 12px;
+  color: #fff;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input#msg:focus {
+  border-color: var(--cyan-glow);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+}
+
+button#send {
+  background: var(--cyan-glow);
+  color: #020813;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 18px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button#send:hover {
+  background: #a6f8ff;
+  box-shadow: 0 0 15px var(--cyan-glow);
+}
+
+button#send:active {
+  transform: scale(0.95);
+}
+
+/* Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.05); opacity: 1; }
+}
