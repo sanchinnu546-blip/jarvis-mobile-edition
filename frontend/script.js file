@@ -1,1 +1,74 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const chatForm = document.getElementById('chat-form');
+  const msgInput = document.getElementById('msg');
+  const chatWindow = document.getElementById('chat');
 
+  // Initial welcome message from J.A.R.V.I.S.
+  appendMessage('J.A.R.V.I.S', 'All systems operational, sir. How may I assist you today?', 'jarvis');
+
+  // Handle Form Submission
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const userText = msgInput.value.trim();
+    if (!userText) return;
+
+    // 1. Display User Message
+    appendMessage('USER', userText, 'user');
+    msgInput.value = '';
+
+    // 2. Simulate AI Processing & Response
+    simulateJarvisResponse(userText);
+  });
+
+  // Function to create and render chat message elements safely
+  function appendMessage(sender, text, type) {
+    const messageEl = document.createElement('div');
+    messageEl.classList.add('msg-bubble', type);
+
+    const senderEl = document.createElement('strong');
+    senderEl.textContent = `${sender}: `;
+
+    const contentEl = document.createElement('span');
+    contentEl.textContent = text;
+
+    messageEl.appendChild(senderEl);
+    messageEl.appendChild(contentEl);
+    chatWindow.appendChild(messageEl);
+
+    // Auto-scroll chat box to the bottom
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  // Simulate thinking delay & contextual JARVIS replies
+  function simulateJarvisResponse(userQuery) {
+    setTimeout(() => {
+      const reply = getJarvisResponse(userQuery.toLowerCase());
+      appendMessage('J.A.R.V.I.S', reply, 'jarvis');
+    }, 700);
+  }
+
+  // Simple response generation logic
+  function getJarvisResponse(query) {
+    if (query.includes('hello') || query.includes('hi') || query.includes('hey')) {
+      return 'Greetings, sir. Standing by for instructions.';
+    }
+    if (query.includes('status') || query.includes('system') || query.includes('core')) {
+      return 'AI Core and Network are online. Voice and Memory modules remain locked.';
+    }
+    if (query.includes('who are you') || query.includes('name')) {
+      return 'I am J.A.R.V.I.S., Just A Rather Very Intelligent System.';
+    }
+    if (query.includes('weather') || query.includes('time')) {
+      return 'Accessing localized environmental telemetry... Current operational parameters are optimal.';
+    }
+
+    // Default dynamic responses
+    const responses = [
+      'Processing request through core protocols...',
+      'Analyzing query. Re-routing computational resources to accommodate.',
+      'Understood, sir. Executing background diagnostics.',
+      'Data logged into temporary buffer.'
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+  }
+});
