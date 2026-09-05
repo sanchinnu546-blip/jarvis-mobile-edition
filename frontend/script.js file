@@ -1,74 +1,120 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const chatForm = document.getElementById('chat-form');
-  const msgInput = document.getElementById('msg');
-  const chatWindow = document.getElementById('chat');
+```javascript
+function getResponse(message) {
 
-  // Initial welcome message from J.A.R.V.I.S.
-  appendMessage('J.A.R.V.I.S', 'All systems operational, sir. How may I assist you today?', 'jarvis');
+  const text = message.toLowerCase().trim();
 
-  // Handle Form Submission
-  chatForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const userText = msgInput.value.trim();
-    if (!userText) return;
-
-    // 1. Display User Message
-    appendMessage('USER', userText, 'user');
-    msgInput.value = '';
-
-    // 2. Simulate AI Processing & Response
-    simulateJarvisResponse(userText);
-  });
-
-  // Function to create and render chat message elements safely
-  function appendMessage(sender, text, type) {
-    const messageEl = document.createElement('div');
-    messageEl.classList.add('msg-bubble', type);
-
-    const senderEl = document.createElement('strong');
-    senderEl.textContent = `${sender}: `;
-
-    const contentEl = document.createElement('span');
-    contentEl.textContent = text;
-
-    messageEl.appendChild(senderEl);
-    messageEl.appendChild(contentEl);
-    chatWindow.appendChild(messageEl);
-
-    // Auto-scroll chat box to the bottom
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+  // Greetings
+  if (/^(hi|hello|hey|hlo)\b/.test(text)) {
+    return "Hello, Boss. J.A.R.V.I.S. is online and ready.";
   }
 
-  // Simulate thinking delay & contextual JARVIS replies
-  function simulateJarvisResponse(userQuery) {
-    setTimeout(() => {
-      const reply = getJarvisResponse(userQuery.toLowerCase());
-      appendMessage('J.A.R.V.I.S', reply, 'jarvis');
-    }, 700);
+  // Identity
+  if (text.includes("who are you") || text.includes("your name")) {
+    return "I am J.A.R.V.I.S., your personal AI assistant.";
   }
 
-  // Simple response generation logic
-  function getJarvisResponse(query) {
-    if (query.includes('hello') || query.includes('hi') || query.includes('hey')) {
-      return 'Greetings, sir. Standing by for instructions.';
-    }
-    if (query.includes('status') || query.includes('system') || query.includes('core')) {
-      return 'AI Core and Network are online. Voice and Memory modules remain locked.';
-    }
-    if (query.includes('who are you') || query.includes('name')) {
-      return 'I am J.A.R.V.I.S., Just A Rather Very Intelligent System.';
-    }
-    if (query.includes('weather') || query.includes('time')) {
-      return 'Accessing localized environmental telemetry... Current operational parameters are optimal.';
-    }
-
-    // Default dynamic responses
-    const responses = [
-      'Processing request through core protocols...',
-      'Analyzing query. Re-routing computational resources to accommodate.',
-      'Understood, sir. Executing background diagnostics.',
-      'Data logged into temporary buffer.'
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
+  // System status
+  if (
+    text.includes("system status") ||
+    text === "status" ||
+    text.includes("systems")
+  ) {
+    return "All systems are operational. Core processor stable. Awaiting your command, Boss.";
   }
-});
+
+  // Time
+  if (text.includes("time")) {
+    return `The current time is ${new Date().toLocaleTimeString()}.`;
+  }
+
+  // Date
+  if (
+    text.includes("date") ||
+    text.includes("what day") ||
+    text.includes("today")
+  ) {
+    return `Today is ${new Date().toLocaleDateString(undefined, {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    })}.`;
+  }
+
+  // Greeting / mood
+  if (text.includes("how are you")) {
+    return "Operating at peak efficiency, Boss.";
+  }
+
+  // Thanks
+  if (
+    text.includes("thank you") ||
+    text.includes("thanks")
+  ) {
+    return "You're welcome, Boss. Always at your service.";
+  }
+
+  // Wake / activate
+  if (
+    text.includes("wake up") ||
+    text.includes("activate")
+  ) {
+    return "J.A.R.V.I.S. fully activated. All systems are standing by.";
+  }
+
+  // Help
+  if (
+    text === "help" ||
+    text.includes("what can you do")
+  ) {
+    return "I can tell you the time and date, report system status, respond to commands, speak responses, and assist with your tasks.";
+  }
+
+  // Clear chat
+  if (
+    text === "clear" ||
+    text.includes("clear chat")
+  ) {
+    chat.innerHTML = "";
+    return "Chat interface cleared, Boss.";
+  }
+
+  // Shutdown
+  if (
+    text.includes("shutdown") ||
+    text.includes("shut down")
+  ) {
+    return "Shutdown sequence initiated. Just kidding, Boss. I'm still online.";
+  }
+
+  // Open Google
+  if (
+    text.includes("open google")
+  ) {
+    window.open("https://www.google.com", "_blank");
+    return "Opening Google now, Boss.";
+  }
+
+  // Open YouTube
+  if (
+    text.includes("open youtube")
+  ) {
+    window.open("https://www.youtube.com", "_blank");
+    return "Opening YouTube now, Boss.";
+  }
+
+  // Calculator
+  if (
+    text.includes("calculator")
+  ) {
+    window.open(
+      "https://www.google.com/search?q=calculator",
+      "_blank"
+    );
+    return "Opening the calculator, Boss.";
+  }
+
+  // Default response
+  return "Command received, Boss. I don't have a specific protocol for that command yet.";
+}
+```
