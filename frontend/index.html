@@ -1,1 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J.A.R.V.I.S - Mobile Edition</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+  <header>
+    <h1>J.A.R.V.I.S</h1>
+    <p>MOBILE EDITION</p>
+  </header>
+
+  <main>
+    <!-- Core Reactor Animation Container -->
+    <div class="core" aria-hidden="true">
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+      <div class="center"></div>
+    </div>
+    <p class="core-text">CORE ACTIVE</p>
+
+    <!-- System Status Section -->
+    <section class="status">
+      <h2>SYSTEM STATUS</h2>
+      <div class="row"><span>AI CORE</span><b class="on">● ONLINE</b></div>
+      <div class="row"><span>NETWORK</span><b class="on">● ONLINE</b></div>
+      <div class="row"><span>VOICE</span><b class="off">○ LOCKED</b></div>
+      <div class="row"><span>MEMORY</span><b class="off">○ LOCKED</b></div>
+    </section>
+
+    <!-- Chat Output Window -->
+    <section class="chat" id="chat" aria-live="polite"></section>
+
+    <!-- User Input Form -->
+    <form class="input-area" id="chat-form">
+      <input 
+        type="text" 
+        id="msg" 
+        placeholder="Ask J.A.R.V.I.S..." 
+        autocomplete="off" 
+        required 
+        aria-label="Message input"
+      >
+      <button type="submit" id="send">SEND</button>
+    </form>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
