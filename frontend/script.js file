@@ -1,47 +1,135 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const chat = document.getElementById('chat');
-  const input = document.getElementById('msg');
-  const send = document.getElementById('send');
+const promptBox = document.getElementById("prompt");
+const replyBox = document.getElementById("reply");
+const statusBox = document.getElementById("status");
+const sendButton = document.getElementById("sendButton");
+const micButton = document.getElementById("micButton");
 
-  function addMessage(text, sender) {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `msg ${sender}`;
-    msgDiv.innerText = text;
-    chat.appendChild(msgDiv);
-    chat.scrollTop = chat.scrollHeight;
-    return msgDiv; // Return reference to avoid relying on chat.lastChild
-  }
+// Speech Recognition Setup (Web Speech API)
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
 
-  function handleSend() {
-    const text = input.value.trim();
-    if (!text) return;
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
 
-    addMessage('YOU: ' + text, 'user');
-    input.value = '';
+  recognition.onstart = () => {
+    micButton.classList.add("recording");
+    statusBox.textContent = "LISTENING...";
+    statusBox.style.color = "#ffbb00";
+  };
 
-    // Keep direct reference to the AI response container
-    const aiMsgElement = addMessage('J.A.R.V.I.S: Processing...', 'ai');
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    promptBox.value = transcript;
+    ask();
+  };
 
-    setTimeout(() => {
-      aiMsgElement.innerText = 'J.A.R.V.I.S: Systems online. How may I assist you, Boss?';
-    }, 1000);
-  }
+  recognition.onerror = (e) => {
+    console.error("Speech Error:", e);
+    micButton.classList.remove("recording");
+    statusBox.textContent = "SPEECH ERROR";
+    statusBox.style.color = "var(--error)";
+  };
 
-  send.addEventListener('click', handleSend);
+  recognition.onend = () => {
+    micButton.classList.remove("recording");
+  };
 
-  // Optional: Allow pressing Enter to send
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleSend();
+  micButton.addEventListener("click", () => {
+    if (micButton.classList.contains("recording")) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
   });
-});
-// Add event listener to save state or cleanup when navigating away
-window.addEventListener('pagehide', (event) => {
-  // Save state or cleanup tasks here
-});
+} else {
+  micButton.style.display = "none";
+}
 
-// Add event listener to handle tab visibility changes
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
-    // Send background analytics or save progress
+// Text-To-Speech Setup
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 0.9;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+async function ask() {
+  const prompt = promptBox.value.trim();
+
+  if (!prompt) {
+    replyBox.textContent = "Please provide an instruction.";
+    return;
+  }
+
+  if (!API_KEY || API_KEY === "YOUR_GEMINI_API_KEY") {
+    replyBox.textContent = "ERROR: Please set a valid Gemini API key in script.js.";
+    statusBox.textContent = "API KEY MISSING";
+    statusBox.style.color = "var(--error)";
+    return;
+  }
+
+  replyBox.textContent = "PROCESSING REQUEST...";
+  statusBox.textContent = "ANALYZING...";
+  statusBox.style.color = "#ffbb00";
+  sendButton.disabled = true;
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": API_KEY
+      },
+      body: JSON.stringify({
+        contents: [{
+          role: "user",
+          parts: [{ text: prompt }]
+        }],
+        systemInstruction: {
+          parts: [{ text: "You are J.A.R.V.I.S., an intelligent, highly capable AI assistant. Keep responses clear, precise, and polite." }]
+        }
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || `HTTP Error ${response.status}`);
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.map(part => part.text || "").join("") || "";
+
+    if (!text) {
+      throw new Error("No response received from system.");
+    }
+
+    replyBox.textContent = text;
+    statusBox.textContent = "SYSTEM ONLINE";
+    statusBox.style.color = "var(--success)";
+    
+    speak(text);
+
+  } catch (error) {
+    console.error(error);
+    replyBox.textContent = "SYSTEM ERROR: " + error.message;
+    statusBox.textContent = "CONNECTION FAILED";
+    statusBox.style.color = "var(--error)";
+  } finally {
+    sendButton.disabled = false;
+  }
+}
+
+sendButton.addEventListener("click", ask);
+
+promptBox.addEventListener("keydown", function(event) {
+  if (event.ctrlKey && event.key === "Enter") {
+    ask();
   }
 });
