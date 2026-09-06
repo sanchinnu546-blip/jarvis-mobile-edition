@@ -34,3 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') handleSend();
   });
 });
+// Add event listener to save state or cleanup when navigating away
+window.addEventListener('pagehide', (event) => {
+  // Save state or cleanup tasks here
+});
+
+// Add event listener to handle tab visibility changes
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    // Send background analytics or save progress
+  }
+});
