@@ -1,1 +1,323 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>J.A.R.V.I.S</title><link rel="stylesheet" href="style.css"></head><body> <header><h1>J.A.R.V.I.S</h1><p>MOBILE EDITION</p></header> <div class="core"> <div class="ring r1"></div> <div class="ring r2"></div> <div class="center"></div> </div> <p class="core-text">CORE ACTIVE</p> <div class="status"> <h2>SYSTEM STATUS</h2> <div class="row"><span>AI CORE</span><b class="on">● ONLINE</b></div> <div class="row"><span>NETWORK</span><b class="on">● ONLINE</b></div> <div class="row"><span>VOICE</span><b class="off">○ LOCKED</b></div> <div class="row"><span>MEMORY</span><b class="off">○ LOCKED</b></div> </div> <div class="chat" id="chat"></div> <div class="input-area"> <input id="msg" placeholder="Ask J.A.R.V.I.S..."> <button id="send">SEND</button> </div> <script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>J.A.R.V.I.S Mobile HUD</title>
+  <style>
+    :root {
+      --primary: #00f3ff;
+      --primary-dim: rgba(0, 243, 255, 0.2);
+      --bg-dark: #050a0e;
+      --panel-bg: rgba(4, 20, 32, 0.75);
+      --error: #ff3366;
+      --success: #00ff88;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 30%, rgba(0, 243, 255, 0.08) 0%, transparent 70%),
+        linear-gradient(to bottom, #020609, #08121a);
+      color: var(--primary);
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+    }
+
+    /* Outer Container */
+    .app-container {
+      max-width: 500px;
+      width: 100%;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* HUD Header */
+    header {
+      text-align: center;
+      padding: 12px;
+      border: 1px solid var(--primary-dim);
+      background: var(--panel-bg);
+      border-radius: 12px;
+      box-shadow: 0 0 15px var(--primary-dim);
+      position: relative;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      text-shadow: 0 0 8px var(--primary);
+    }
+
+    #status {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-top: 6px;
+      color: var(--error);
+      font-weight: bold;
+    }
+
+    /* Display / Response Area */
+    .hud-display {
+      flex-grow: 1;
+      border: 1px solid var(--primary-dim);
+      background: var(--panel-bg);
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 180px;
+      max-height: 350px;
+      overflow-y: auto;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Controls Group */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 90px;
+      background: rgba(0, 15, 25, 0.8);
+      color: var(--primary);
+      border: 1px solid var(--primary-dim);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      resize: none;
+      transition: border 0.2s ease;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 8px var(--primary-dim);
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 14px;
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--primary-dim);
+      transition: transform 0.1s ease, opacity 0.2s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Mic Button */
+    .btn-mic {
+      flex: 0 0 54px;
+      background: rgba(0, 243, 255, 0.15);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .btn-mic.recording {
+      background: var(--error);
+      color: #fff;
+      border-color: var(--error);
+      box-shadow: 0 0 12px var(--error);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1>J.A.R.V.I.S</h1>
+      <div id="status">SYSTEM OFFLINE</div>
+    </header>
+
+    <div class="hud-display" id="reply">Standing by for voice or text instructions...</div>
+
+    <div class="control-panel">
+      <textarea id="prompt" placeholder="Ask J.A.R.V.I.S..."></textarea>
+      
+      <div class="action-row">
+        <button id="micButton" class="btn-mic" title="Voice Input">🎙️</button>
+        <button id="sendButton">EXECUTE</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Replace with your actual key for local evaluation
+    const API_KEY = "YOUR_GEMINI_API_KEY";
+    const MODEL = "gemini-2.5-flash";
+
+    const promptBox = document.getElementById("prompt");
+    const replyBox = document.getElementById("reply");
+    const statusBox = document.getElementById("status");
+    const sendButton = document.getElementById("sendButton");
+    const micButton = document.getElementById("micButton");
+
+    // Speech Recognition Setup (Web Speech API)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        micButton.classList.add("recording");
+        statusBox.textContent = "LISTENING...";
+        statusBox.style.color = "#ffbb00";
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        promptBox.value = transcript;
+        ask();
+      };
+
+      recognition.onerror = (e) => {
+        console.error("Speech Error:", e);
+        micButton.classList.remove("recording");
+        statusBox.textContent = "SPEECH ERROR";
+        statusBox.style.color = "var(--error)";
+      };
+
+      recognition.onend = () => {
+        micButton.classList.remove("recording");
+      };
+
+      micButton.addEventListener("click", () => {
+        if (micButton.classList.contains("recording")) {
+          recognition.stop();
+        } else {
+          recognition.start();
+        }
+      });
+    } else {
+      micButton.style.display = "none";
+    }
+
+    // Text To Speech Setup
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 0.9;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    async function ask() {
+      const prompt = promptBox.value.trim();
+
+      if (!prompt) {
+        replyBox.textContent = "Please provide an instruction.";
+        return;
+      }
+
+      if (!API_KEY || API_KEY === "YOUR_GEMINI_API_KEY") {
+        replyBox.textContent = "ERROR: Please set a valid Gemini API key in the JavaScript section.";
+        statusBox.textContent = "API KEY MISSING";
+        statusBox.style.color = "var(--error)";
+        return;
+      }
+
+      replyBox.textContent = "PROCESSING REQUEST...";
+      statusBox.textContent = "ANALYZING...";
+      statusBox.style.color = "#ffbb00";
+      sendButton.disabled = true;
+
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": API_KEY
+          },
+          body: JSON.stringify({
+            contents: [{
+              role: "user",
+              parts: [{ text: prompt }]
+            }],
+            systemInstruction: {
+              parts: [{ text: "You are J.A.R.V.I.S., an intelligent, highly capable AI assistant. Keep responses clear, precise, and polite." }]
+            }
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error?.message || `HTTP Error ${response.status}`);
+        }
+
+        const text = data.candidates?.[0]?.content?.parts?.map(part => part.text || "").join("") || "";
+
+        if (!text) {
+          throw new Error("No response received from system.");
+        }
+
+        replyBox.textContent = text;
+        statusBox.textContent = "SYSTEM ONLINE";
+        statusBox.style.color = "var(--success)";
+        
+        speak(text);
+
+      } catch (error) {
+        console.error(error);
+        replyBox.textContent = "SYSTEM ERROR: " + error.message;
+        statusBox.textContent = "CONNECTION FAILED";
+        statusBox.style.color = "var(--error)";
+      } finally {
+        sendButton.disabled = false;
+      }
+    }
+
+    sendButton.addEventListener("click", ask);
+  </script>
+</body>
+</html>
